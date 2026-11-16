@@ -1,0 +1,35 @@
+# Build artifacts
+build/
+*.o
+*.out
+bloom_app
+
+# Session notes
+session-ses_*.md
+/20??-??-??-*.txt
+
+# IDE
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Generated artifacts: datasets and the working results database stay out of git.
+# Finished campaigns are frozen into results/campaigns/<name>/ and versioned
+# (logs included); new runs never write there, so they cannot dirty the tree.
+data/*
+!data/.gitkeep
+results/*
+!results/.gitkeep
+!results/campaigns/
+!results/campaigns/**

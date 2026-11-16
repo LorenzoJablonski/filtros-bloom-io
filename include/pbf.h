@@ -1,0 +1,35 @@
+#ifndef PBF_H
+#define PBF_H
+
+#include <stddef.h>
+#include "common.h"
+
+typedef struct pbf pbf_t;
+
+pbf_t *pbf_create(size_t m, unsigned k);
+void pbf_destroy(pbf_t *bf);
+void pbf_insert(pbf_t *bf, const bf_key_t *key);
+/* Same writes as pbf_insert, returning how many probed positions were already
+ * non-zero (collisions). For the untimed counting pass only: pbf_insert stays the
+ * measured path. */
+unsigned pbf_insert_counted(pbf_t *bf, const bf_key_t *key);
+
+/*
+ * Concurrent insertion (threadbench), apart from the measured serial insert.
+ * pbf_insert_partitions sets only the bits of partitions [first, last): threads
+ * that own disjoint partition ranges never write the same byte or cache line,
+ * so they need no lock and no atomic. pbf_insert_atomic splits by key instead
+ * (every thread may write every partition) and uses an atomic OR.
+ */
+unsigned pbf_partitions(const pbf_t *bf);
+void pbf_insert_partitions(pbf_t *bf, const bf_key_t *key, unsigned first, unsigned last);
+void pbf_insert_atomic(pbf_t *bf, const bf_key_t *key);
+bf_member_t pbf_lookup(pbf_t *bf, const bf_key_t *key);
+size_t pbf_memory_bytes(const pbf_t *bf);
+size_t pbf_cells(const pbf_t *bf); /* effective m */
+double pbf_fpr_theory(const pbf_t *bf, size_t n); /* expected FPR after n inserts */
+double pbf_fill_ratio(const pbf_t *bf); /* fraction of non-zero cells */
+size_t pbf_partition_stride(const pbf_t *bf); /* bytes between partition starts (multiple of 64) */
+int pbf_params(size_t n, double p, bf_sizing_t *out); /* sizing for target FPR p */
+
+#endif /* PBF_H */
